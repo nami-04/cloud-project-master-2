@@ -6,26 +6,28 @@ from student import datahandler as studata
 from club import datahandler as clubdata
 from django.http import *
 import traceback
-import pyrebase
+import firebase_admin
+from firebase_admin import auth, credentials
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
-# Firebase configuration from environment variables
-firebaseConfig = {
-    "apiKey": os.getenv('FIREBASE_API_KEY'),
-    "authDomain": os.getenv('FIREBASE_AUTH_DOMAIN'),
-    "databaseURL": os.getenv('FIREBASE_DATABASE_URL'),
-    "projectId": os.getenv('FIREBASE_PROJECT_ID'),
-    "storageBucket": os.getenv('FIREBASE_STORAGE_BUCKET'),
-    "messagingSenderId": os.getenv('FIREBASE_MESSAGING_SENDER_ID'),
-    "appId": os.getenv('FIREBASE_APP_ID'),
-    "measurementId": os.getenv('FIREBASE_MEASUREMENT_ID')
-}
+# Initialize Firebase Admin SDK
+cred = credentials.Certificate({
+    "type": "service_account",
+    "project_id": os.getenv('FIREBASE_PROJECT_ID'),
+    "private_key_id": os.getenv('FIREBASE_PRIVATE_KEY_ID'),
+    "private_key": os.getenv('FIREBASE_PRIVATE_KEY').replace('\\n', '\n'),
+    "client_email": os.getenv('FIREBASE_CLIENT_EMAIL'),
+    "client_id": os.getenv('FIREBASE_CLIENT_ID'),
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_x509_cert_url": os.getenv('FIREBASE_CLIENT_CERT_URL')
+})
 
-firebase = pyrebase.initialize_app(firebaseConfig)
-auth = firebase.auth()
+firebase_admin.initialize_app(cred)
 
 def loginuser(request):
     if request.user.is_authenticated:
@@ -43,8 +45,9 @@ def loginuser(request):
         except:
             urltoredirect = None
         try:
-            user = auth.sign_in_with_email_and_password(email , password)
-            user = authenticate(username=user['localId'], password="deZE%KYzH5jVBbHN")
+            # Sign in with email and password using Firebase Admin SDK
+            user = auth.get_user_by_email(email)
+            user = authenticate(username=user.uid, password="deZE%KYzH5jVBbHN")
             if user is not None:
                 login(request, user)
                 if not(urltoredirect is None):
