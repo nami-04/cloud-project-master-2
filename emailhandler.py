@@ -1,25 +1,22 @@
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
+import os
+from dotenv import load_dotenv
 
-SENDGRID_API_KEY= #key
+load_dotenv()
+
+SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
+FROM_EMAIL = os.getenv('FROM_EMAIL')
 
 def subscription_email(id):
     to = id.decode('utf-8')
-    email_body = Mail(
-    from_email=#from email,
-    to_emails = to,
-    subject= 'Subscription Email from VIT-AP club tech team',
-    html_content='<h2>Thank you </h2><br><h3>Your Subscription to club has been confirmed</h3>')
-    send_email(email_body)
+    print(f"Subscription email would be sent to: {to}")
+    print("Email content: Thank you! Your Subscription to club has been confirmed")
 
 def registration_email(id):
     to = id.decode('utf-8')
-    email_body = Mail(
-    from_email=#from email,
-    to_emails = to,
-    subject= 'Subscription Email from VIT-AP club tech team',
-    html_content='<h2>Thank you </h2><br><h3>Your registration for the event  has been confirmed</h3>')
-    send_email(email_body)
+    print(f"Registration email would be sent to: {to}")
+    print("Email content: Thank you! Your registration for the event has been confirmed")
 
 def send_email(message):
     try:

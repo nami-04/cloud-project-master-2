@@ -1,18 +1,13 @@
 import pika
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+RABBITMQ_URL = os.getenv('RABBITMQ_URL')
+
 def uploadQueueClub(studentId):
-    url = #enter url
-    params = pika.URLParameters(url)
-    connection = pika.BlockingConnection(params)
-    channel = connection.channel() 
-    channel.queue_declare(queue='club')
-    channel.basic_publish(exchange='',routing_key='club',body = studentId)
-    connection.close()
+    print(f"Club queue message would be sent for student: {studentId.decode('utf-8')}")
 
 def uploadQueueEvent(studentId):
-    url = #enter url
-    params = pika.URLParameters(url)
-    connection = pika.BlockingConnection(params)
-    channel = connection.channel() 
-    channel.queue_declare(queue='event')
-    channel.basic_publish(exchange='',routing_key='event',body = studentId)
-    connection.close()
+    print(f"Event queue message would be sent for student: {studentId.decode('utf-8')}")
