@@ -4,7 +4,6 @@ from club.models import Club
 from student.models import Student
 from admintask.models import subscription
 from admintask.models import registration
-from student import datahandler as studata
 import traceback
 import os
 from dotenv import load_dotenv
