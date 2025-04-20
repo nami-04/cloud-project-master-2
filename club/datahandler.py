@@ -7,20 +7,26 @@ from django.contrib.auth.models import User
 import uuid
 import pyrebase
 import traceback
-import firebase_admin
-from firebase_admin import credentials
-from firebase_admin import auth as main_auth
-from event import datahandler as evedata
+import os
+from dotenv import load_dotenv
 
-cred = credentials.Certificate("firebaseadmin.json")
-firebase_admin.initialize_app(cred)
+load_dotenv()
 
-client = MongoClient("")
+# MongoDB connection
+mongodb_uri = os.getenv('MONGODB_URI', 'mongodb://localhost:27017/')
+client = MongoClient(mongodb_uri)
 db = client.get_database("CloudProject")
 conn = db.Clubs
 
-
 firebaseConfig = {
+    "apiKey": os.getenv('FIREBASE_API_KEY'),
+    "authDomain": os.getenv('FIREBASE_AUTH_DOMAIN'),
+    "databaseURL": os.getenv('FIREBASE_DATABASE_URL'),
+    "projectId": os.getenv('FIREBASE_PROJECT_ID'),
+    "storageBucket": os.getenv('FIREBASE_STORAGE_BUCKET'),
+    "messagingSenderId": os.getenv('FIREBASE_MESSAGING_SENDER_ID'),
+    "appId": os.getenv('FIREBASE_APP_ID'),
+    "measurementId": os.getenv('FIREBASE_MEASUREMENT_ID')
 }
 firebase = pyrebase.initialize_app(firebaseConfig)
 auth = firebase.auth()
@@ -35,6 +41,7 @@ def createClub(ClubData):
     except:
         traceback.print_exc()
         print("Google Failed")
+        return None
     
     try:
         ClubData['clubId'] = user['localId']
@@ -47,13 +54,13 @@ def createClub(ClubData):
         user.save()
         my_group.user_set.add(user)
         return password
-    except:
-        traceback.print_exc()
+    except Exception as e:
+        print(f"Error creating club: {str(e)}")
         return None
 
 def deleteClub(id):
     try:    
-        main_auth.delete_user(id)
+        auth.delete_user(id)
         conn.delete_one({"clubId" : id})
         evedata.deleteEventforClub(id)
         User.objects.filter(username=id).delete()
