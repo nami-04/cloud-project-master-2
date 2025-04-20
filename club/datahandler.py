@@ -6,7 +6,7 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.models import User
 import uuid
 import firebase_admin
-from firebase_admin import auth, credentials
+from firebase_admin import auth
 import traceback
 import os
 from dotenv import load_dotenv
