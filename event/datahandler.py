@@ -6,10 +6,23 @@ from admintask.models import subscription
 from admintask.models import registration
 from student import datahandler as studata
 import traceback
+import os
+from dotenv import load_dotenv
 
-client = MongoClient("")
-db = client.get_database("CloudProject")
-conn = db.Events
+load_dotenv()
+
+# Get MongoDB URI from environment variable
+mongodb_uri = os.getenv('MONGODB_URI')
+if not mongodb_uri:
+    raise ValueError("MONGODB_URI environment variable is not set")
+
+try:
+    client = MongoClient(mongodb_uri)
+    db = client.get_database("CloudProject")
+    conn = db.Events
+except Exception as e:
+    print(f"Error connecting to MongoDB: {str(e)}")
+    raise
 
 
 def createEvent(eventData):
