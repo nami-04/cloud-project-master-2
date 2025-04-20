@@ -3,20 +3,27 @@ from student.models import Student
 from django.contrib.auth.models import Group
 from django.contrib.auth.models import User
 import pyrebase
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 firebaseConfig = {
-    "apiKey": "AIzaSyDUEVU5icElBw_PR6xQ5XEXsy56vOL0H3g",
-    "authDomain": "cloud-project-1-27e81.firebaseapp.com",
-    "databaseURL": "https://cloudproject-bcd7008-default-rtdb.firebaseio.com",
-    "projectId": "cloud-project-1-27e81",
-    "storageBucket": "cloud-project-1-27e81.appspot.com",
-    "messagingSenderId": "850810687393",
-    "appId": "1:850810687393:web:c3c448975108610c3345e0",
-    "measurementId": "G-Z40ZLL0MMJ"
+    "apiKey": os.getenv('FIREBASE_API_KEY'),
+    "authDomain": os.getenv('FIREBASE_AUTH_DOMAIN'),
+    "databaseURL": os.getenv('FIREBASE_DATABASE_URL'),
+    "projectId": os.getenv('FIREBASE_PROJECT_ID'),
+    "storageBucket": os.getenv('FIREBASE_STORAGE_BUCKET'),
+    "messagingSenderId": os.getenv('FIREBASE_MESSAGING_SENDER_ID'),
+    "appId": os.getenv('FIREBASE_APP_ID'),
+    "measurementId": os.getenv('FIREBASE_MEASUREMENT_ID')
 }
 firebase = pyrebase.initialize_app(firebaseConfig)
 auth = firebase.auth()
 
-client = MongoClient("")
+# MongoDB connection
+mongodb_uri = os.getenv('MONGODB_URI', 'mongodb://localhost:27017/')
+client = MongoClient(mongodb_uri)
 db = client.get_database("CloudProject")
 conn = db.Student
 
@@ -47,11 +54,11 @@ def createStudent(studentData,password):
     
     try:
         studentData['localId'] = guser['localId']
-        conn.insert_one(studentData)   
-    except:
-        print("mongo failed")
+        conn.insert_one(studentData)
+        return True
+    except Exception as e:
+        print(f"MongoDB insertion failed: {str(e)}")
         return None
-    return True
 
 def getStudent(id):
     try:
